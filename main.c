@@ -15,7 +15,7 @@ struct token* consume_operator(char*, int*);
 void consume_whitespace(char*, int*);
 
 struct token {
-	enum token_t type;
+	enum token_types type;
 	char* value;
 };
 
@@ -47,12 +47,12 @@ int main(void) {
 	int second_num = atoi(second_int->value);
 	int output;
 	switch (operator->type) {
-	case PLUS:
-		output = first_num + second_num;
-		break;
-	default:
-		output = -1;
-    }
+		case PLUS:
+			output = first_num + second_num;
+			break;
+		default:
+			output = -1;
+  }
 
 	printf("Got a full expression: %d %s %d = %d\n", first_num, operator->value, second_num, output);
 
@@ -92,7 +92,7 @@ struct token* consume_integer(char* input, int* pos) {
 	for (int i = 0; i < length_left; i++) {
 		char current_char = input[(*pos)];
 
-		if (current_char == NULL) {
+		if (current_char == '\0') {
 			return_buffer[i] = '\0';
 			break;
 	    }
@@ -120,6 +120,7 @@ struct token* consume_operator(char* input, int* pos) {
 
 	for (int i = 0; i < length_left; i++) {
 		char current_char = input[*pos];
+
 		if (current_char == '+') {
 			struct token* return_token = malloc(sizeof(struct token));
 			return_token->type = PLUS;
@@ -128,6 +129,7 @@ struct token* consume_operator(char* input, int* pos) {
 			(*pos)++;
 			return return_token;
 		}
+
 	}
 	return NULL;
 }
