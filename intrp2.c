@@ -4,15 +4,15 @@
 #include <ctype.h>
 
 enum token_t {
-	INTEGER,
-	PLUS,
-	MINUS,
-	END_OF_FILE
+  INTEGER,
+  PLUS,
+  MINUS,
+  END_OF_FILE
 };
 
 struct token {
-	enum token_t type;
-	char* value;
+  enum token_t type;
+  char* value;
   int position;
 };
 
@@ -98,50 +98,50 @@ struct token* new_operator_token(char* buffer, enum token_t type, int position) 
  * Returns a token or NULL if there is no match.
  */
 struct token* consume_integer(char* input, int pos) {
-	int len = strlen(input) + 1;
-	int length_left = len - pos;
-	char *return_buffer = malloc(length_left);
-	if (return_buffer == NULL) {
-		printf("Failed allocating buffer, returning\n");
-		return NULL;
-	}
+  int len = strlen(input) + 1;
+  int length_left = len - pos;
+  char *return_buffer = malloc(length_left);
+  if (return_buffer == NULL) {
+    printf("Failed allocating buffer, returning\n");
+    return NULL;
+  }
 
-	for (int i = 0; i < length_left; i++) {
-		char current_char = input[pos];
+  for (int i = 0; i < length_left; i++) {
+    char current_char = input[pos];
 
-		if (current_char == '\0') {
-			return_buffer[i] = '\0';
-			break;
-	  }
+    if (current_char == '\0') {
+      return_buffer[i] = '\0';
+      break;
+    }
 
-		if (isdigit(current_char)) {
-			return_buffer[i] = current_char;
-			pos++;
-		} else {
-			return_buffer[i] = '\0';
-			break;
-		}
-	}
+    if (isdigit(current_char)) {
+      return_buffer[i] = current_char;
+      pos++;
+    } else {
+      return_buffer[i] = '\0';
+      break;
+    }
+  }
 
   struct token* return_token = new_digit_token(return_buffer, pos);
-	free(return_buffer);
-	return return_token;
+  free(return_buffer);
+  return return_token;
 }
 
 struct token* consume_operator(char* input, int pos) {
-	int len = strlen(input) + 1;
-	int length_left = len - pos;
+  int len = strlen(input) + 1;
+  int length_left = len - pos;
 
-	for (int i = 0; i < length_left; i++) {
-		char current_char = input[pos];
-		if (current_char == '+') {
+  for (int i = 0; i < length_left; i++) {
+    char current_char = input[pos];
+    if (current_char == '+') {
       return new_operator_token("+", PLUS, pos);
-		}
+    }
     else if (current_char == '-') {
       return new_operator_token("-", MINUS, pos);
     }
-	}
-	return NULL;
+  }
+  return NULL;
 }
 
 int isoperator(char input) {
