@@ -7,6 +7,8 @@ enum token_t {
   INTEGER,
   PLUS,
   MINUS,
+  MULTIPLY,
+  DIVIDE,
   END_OF_FILE
 };
 
@@ -18,6 +20,7 @@ struct token {
 
 void print_token(struct token*);
 struct token* get_next_token(char*, int);
+void free_token(struct token*);
 
 int main() {
   while (1) {
@@ -29,10 +32,20 @@ int main() {
       exit(1);
     }
 
-    printf("Got input: %s", buffer);
+    printf("Got input: '%s'", buffer);
     struct token* token = get_next_token(buffer, 0);
-    printf("got token: \n");
+    while (token->type != END_OF_FILE) {
+      printf("Got token: \n");
+      print_token(token);
+      printf("\n");
+      int pos = token->position + strlen(token->value);
+      free_token(token);
+      token = get_next_token(buffer, pos);
+    }
+    printf("Got token: \n");
     print_token(token);
+    printf("\n");
+    free_token(token);
   }
 
   return 0;
@@ -49,6 +62,12 @@ void print_type(enum token_t type) {
     case MINUS:
       printf("MINUS");
       break;
+    case MULTIPLY:
+      printf("MULTIPLY");
+      break;
+    case DIVIDE:
+      printf("DIVIDE");
+      break;
     case END_OF_FILE:
       printf("END_OF_FILE");
       break;
@@ -59,11 +78,16 @@ void print_type(enum token_t type) {
 }
 
 void print_token(struct token* token) {
-  printf("Type: ");
+  printf("  Type: \t");
   print_type(token->type);
   printf("\n");
-  printf("Value: %s\n", token->value);
-  printf("Position: %d\n", token->position);
+  printf("  Value: \t%s\n", token->value);
+  printf("  Position: \t%d\n", token->position);
+}
+
+void free_token(struct token* token) {
+  free(token->value);
+  free(token);
 }
 
 struct token* new_eof_token(int position) {
@@ -86,11 +110,12 @@ struct token* new_digit_token(char* buffer, int position) {
 
 struct token* new_operator_token(char* buffer, enum token_t type, int position) {
   int len = strlen(buffer);
-  struct token* return_token = malloc(sizeof(struct token));
-  return_token->type = type;
-  return_token->value = malloc(len);
-  strcpy(return_token->value, buffer);
-  return return_token;
+  struct token* token = malloc(sizeof(struct token));
+  token->type = type;
+  token->position = position;
+  token->value = malloc(len);
+  strcpy(token->value, buffer);
+  return token;
 }
 
 /**
@@ -99,6 +124,7 @@ struct token* new_operator_token(char* buffer, enum token_t type, int position) 
  */
 struct token* consume_integer(char* input, int pos) {
   int len = strlen(input) + 1;
+  int start_pos = pos;
   int length_left = len - pos;
   char *return_buffer = malloc(length_left);
   if (return_buffer == NULL) {
@@ -123,12 +149,13 @@ struct token* consume_integer(char* input, int pos) {
     }
   }
 
-  struct token* return_token = new_digit_token(return_buffer, pos);
+  struct token* return_token = new_digit_token(return_buffer, start_pos);
   free(return_buffer);
   return return_token;
 }
 
 struct token* consume_operator(char* input, int pos) {
+  // printf("Consuming operator at pos: %d\n", pos);
   int len = strlen(input) + 1;
   int length_left = len - pos;
 
@@ -140,12 +167,18 @@ struct token* consume_operator(char* input, int pos) {
     else if (current_char == '-') {
       return new_operator_token("-", MINUS, pos);
     }
+    else if (current_char == '*') {
+      return new_operator_token("*", MULTIPLY, pos);
+    }
+    else if (current_char == '/') {
+      return new_operator_token("/", DIVIDE, pos);
+    }
   }
   return NULL;
 }
 
 int isoperator(char input) {
-  return (input == '+' || input == '-' || input == '*');
+  return (input == '+' || input == '-' || input == '*' || input == '/');
 }
 
 struct token* get_next_token(char *buffer, int position) {
@@ -153,13 +186,16 @@ struct token* get_next_token(char *buffer, int position) {
 
   while (current_char) {
     if (isspace(current_char)) {
+      // printf("get_next_token got space\n");
       position++;
       current_char = buffer[position];
     }
     else if (isdigit(current_char)) {
+      // printf("get_next_token got digit\n");
       return consume_integer(buffer, position);
     }
     else if (isoperator(current_char)) {
+      // printf("get_next_token got operator\n");
       return consume_operator(buffer, position);
     }
   }
