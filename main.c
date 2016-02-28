@@ -3,7 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
-enum token_types {
+enum token_t {
 	INTEGER,
 	PLUS,
 	MINUS,
@@ -15,7 +15,7 @@ struct token* consume_operator(char*, int*);
 void consume_whitespace(char*, int*);
 
 struct token {
-	enum token_types type;
+	enum token_t type;
 	char* value;
 };
 
@@ -95,7 +95,8 @@ struct token* consume_integer(char* input, int* pos) {
 		if (current_char == '\0') {
 			return_buffer[i] = '\0';
 			break;
-	    }
+	  }
+
 		if (isdigit(current_char)) {
 			return_buffer[i] = current_char;
 			(*pos)++;
