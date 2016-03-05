@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "./linked_list.h"
 
 enum token_t {
   INTEGER,
@@ -18,9 +19,10 @@ struct token {
   int position;
 };
 
-void print_token(struct token*);
+void print_token(void*, int);
+void print_token_list(List);
 struct token* get_next_token(char*, int);
-void free_token(struct token*);
+void free_token(void*);
 
 int main() {
   while (1) {
@@ -33,19 +35,16 @@ int main() {
     }
 
     printf("Got input: '%s'", buffer);
+    List token_list = new_linked_list();
     struct token* token = get_next_token(buffer, 0);
     while (token->type != END_OF_FILE) {
-      printf("Got token: \n");
-      print_token(token);
-      printf("\n");
       int pos = token->position + strlen(token->value);
-      free_token(token);
+      add_to_list(token_list, token, free_token);
       token = get_next_token(buffer, pos);
     }
-    printf("Got token: \n");
-    print_token(token);
-    printf("\n");
-    free_token(token);
+    add_to_list(token_list, token, free_token);
+    print_token_list(token_list);
+    free_linked_list(token_list);
   }
 
   return 0;
@@ -77,7 +76,8 @@ void print_type(enum token_t type) {
   }
 }
 
-void print_token(struct token* token) {
+void print_token(void* a_token, int i) {
+  struct token* token = (struct token*)a_token;
   printf("  Type: \t");
   print_type(token->type);
   printf("\n");
@@ -85,7 +85,12 @@ void print_token(struct token* token) {
   printf("  Position: \t%d\n", token->position);
 }
 
-void free_token(struct token* token) {
+void print_token_list(List list) {
+  each_of_list(list, print_token);
+}
+
+void free_token(void* a_token) {
+  struct token* token = (struct token*)a_token;
   free(token->value);
   free(token);
 }
