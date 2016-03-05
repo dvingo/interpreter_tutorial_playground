@@ -17,7 +17,8 @@ struct list_struct* new_linked_list() {
 
 void free_node(Node node) {
   printf("Before freeing value node\n");
-  node->destructor(node);
+  node->destructor(node->value);
+  free(node);
   printf("Done freeing node\n");
 }
 

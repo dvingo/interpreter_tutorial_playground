@@ -10,7 +10,7 @@ void destruct_string(void* str) {
 
 void print_item(void* item, int i) {
   printf("Got item: %p at index %d\n", item, i);
-  printf("Val: %s\n", ((Node)item)->value);
+  printf("Val: %s\n", item);
 }
 
 int main() {
@@ -39,13 +39,12 @@ int main() {
   char* my_string2 = "my string TWO";
   add_to_list(list, strdup(my_string2), destruct_string);
   print_linked_list(list);
-
-  // char* my_string2 = "my string TWO";
-  add_to_list(list, "strdup(my_string2)", destruct_string);
-  add_to_list(list, "strdup(my_string3)", destruct_string);
-  add_to_list(list, "LAST GUY HERE", destruct_string);
-
+  add_to_list(list, strdup("strdup(my_string2)"), destruct_string);
+  add_to_list(list, strdup("strdup(my_string3)"), destruct_string);
+  add_to_list(list, strdup("LAST GUY HERE"), destruct_string);
+  printf("Before each of list\n");
   each_of_list(list, print_item);
+  printf("After each of list \n");
 
   printf("\n");
   printf("before free list\n");
