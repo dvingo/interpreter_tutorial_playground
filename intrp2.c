@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "./linked_list.h"
+#include "./dbl_linked_list.h"
 
 enum token_t {
   INTEGER,
@@ -20,7 +20,7 @@ struct token {
 };
 
 void print_token(void*, int);
-void print_token_list(List);
+void print_token_list(DblList);
 struct token* get_next_token(char*, int);
 void free_token(void*);
 
@@ -35,7 +35,7 @@ int main() {
     }
 
     printf("Got input: '%s'", buffer);
-    List token_list = new_linked_list();
+    DblList token_list = new_linked_list();
     struct token* token = get_next_token(buffer, 0);
     while (token->type != END_OF_FILE) {
       int pos = token->position + strlen(token->value);
@@ -85,8 +85,8 @@ void print_token(void* a_token, int i) {
   printf("  Position: \t%d\n", token->position);
 }
 
-void print_token_list(List list) {
-  each_of_list(list, print_token);
+void print_token_list(DblList list) {
+  each_of_list_reverse(list, print_token);
 }
 
 void free_token(void* a_token) {
