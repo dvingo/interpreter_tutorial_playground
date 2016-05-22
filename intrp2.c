@@ -22,6 +22,7 @@ struct token {
 void print_token(void*, int);
 void print_token_list(DblList);
 struct token* get_next_token(char*, int);
+int parse_list(DblList);
 void free_token(void*);
 
 int main() {
@@ -34,7 +35,7 @@ int main() {
       exit(1);
     }
 
-    printf("Got input: '%s'", buffer);
+    // printf("Got input: '%s'", buffer);
     DblList token_list = new_linked_list();
     struct token* token = get_next_token(buffer, 0);
     while (token->type != END_OF_FILE) {
@@ -43,11 +44,96 @@ int main() {
       token = get_next_token(buffer, pos);
     }
     add_to_list(token_list, token, free_token);
-    print_token_list(token_list);
+    // print_token_list(token_list);
+    parse_list(token_list);
     free_linked_list(token_list);
   }
 
   return 0;
+}
+
+int str_is_num(char* str) {
+  char c;
+  for (int i = 0; i < strlen(str); i++) {
+    c = str[i];
+    if (!isdigit(c)) { return 0; }
+  }
+  return 1;
+}
+
+int call_operator(int num1, int num2, char* operator) {
+  if (strcmp(operator, "+") == 0) {
+    return num1 + num2;
+  } else if (strcmp(operator, "-") == 0) {
+    return num1 - num2;
+  } else if (strcmp(operator, "*") == 0) {
+    return num1 * num2;
+  } else if (strcmp(operator, "/") == 0) {
+    return num1 / num2;
+  } else {
+    printf("Unknown operator passed to call_operator: %s\n", operator);
+    return -1;
+  }
+}
+
+/**
+ * Parse the list of tokens to an integer performing the arithmetic
+ * operations.
+ */
+int parse_list(DblList list) {
+  int result = 0;
+  int temp1_set = 0;
+  int temp1 = 0;
+  int temp2 = 0;
+  char* operator = NULL;
+  DblNode current_node = list->tail;
+  if (list->tail->prev) {
+    current_node = list->tail->prev;
+  } else {
+    printf("Invalid list passed to parse_list\n");
+    return 1;
+  }
+  struct token* token = (struct token*)current_node->value;
+  while (token->value) {
+    printf("Loop: current val: %s\n", token->value);
+    if (!token->value) {
+      printf("Val is NULL!\n");
+    }
+    char val[strlen(token->value) + 1];
+    strcpy(val, token->value);
+    if (str_is_num(val)) {
+      if (temp1_set) {
+        temp2 = atoi(val);
+        printf("Got num: %d\n", temp2);
+      } else {
+        temp1 = atoi(val);
+        temp1_set = 1;
+        printf("Got num: %d\n", temp1);
+      }
+      if (operator) {
+        printf("Operator is: %s\n", operator);
+        printf("computing: %d %s %d\n", temp1, operator, temp2);
+         result = call_operator(temp1, temp2, operator);
+         temp1 = result; temp2 = 0;
+         printf("Got result: %d\n", result);
+      }
+    } else {
+      if (strcmp(val, "+") == 0) {
+        operator = "+";
+      } else if (strcmp(val, "-") == 0) {
+        operator = "-";
+      } else if (strcmp(val, "*") == 0) {
+        operator = "*";
+      } else if (strcmp(val, "/") == 0) {
+        operator = "/";
+      } else {
+        printf("Unknown operator: %s\n", operator);
+      }
+    }
+    current_node = current_node->prev;
+    token = (struct token*)current_node->value;
+  }
+  return result;
 }
 
 void print_type(enum token_t type) {

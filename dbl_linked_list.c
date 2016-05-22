@@ -25,17 +25,23 @@ struct dbl_list_struct* new_linked_list() {
 }
 
 void free_node(DblNode node) {
+  #ifdef MY_DEBUG
   printf("Before freeing value node\n");
+  #endif
   node->destructor(node->value);
   free(node);
+  #ifdef MY_DEBUG
   printf("Done freeing node\n");
+  #endif
 }
 
 void free_linked_list(DblList list) {
   int done = 0;
   DblNode item = NULL;
   while (!done) {
+#ifdef MY_DEBUG
     printf("before remove_head_from_list\n");
+#endif
     item = remove_head_from_list(list);
     if (!item->next) {
       done = 1;
@@ -87,7 +93,9 @@ void each_of_list(DblList list, each_of_fn cb) {
   DblNode current_node = list->head;
   int i = 0;
   while (current_node->next) {
+#ifdef MY_DEBUG
     printf("Loop: current index: %d\n", i);
+#endif
     cb(current_node->value, i);
     current_node = current_node->next;
     i++;
@@ -101,7 +109,9 @@ void each_of_list_reverse(DblList list, each_of_fn cb) {
     current_node = list->tail->prev;
   }
   while (current_node) {
+#ifdef MY_DEBUG
     printf("Loop: current index: %d\n", i);
+#endif
     cb(current_node->value, i);
     current_node = current_node->prev;
     i++;
