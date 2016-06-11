@@ -13,6 +13,8 @@ struct token_t {
 char* substr(int start_pos, int end_pos, char* str);
 struct token_t* make_token(enum token type, char* val);
 void free_token(struct token_t* t);
-struct token_t* read_int(char* input);
+struct token_t* read_int(char* input, int* start_index);
+void print_token(struct token_t* t);
+void print_token_enum(enum token);
 
 #endif
